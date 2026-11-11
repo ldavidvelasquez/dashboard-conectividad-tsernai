@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conectividad del hábitat · T. sernai</title>
+<meta name="description" content="Valores anuales observados (1986–2024) de la probabilidad de conectividad (PC) y el área conectada equivalente (ECA) del hábitat idóneo de Thryophilus sernai.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f5f2;
+  --surface: #ffffff;
+  --ink: #1b2620;
+  --ink-2: #48544d;
+  --muted: #6f7a73;
+  --line: #dfe3dd;
+  --grid: #eceee9;
+  --brand: #1f8d49;
+  --brand-deep: #04381d;
+  --g-habitat: #1f8d49;
+  --g-conect: #2532e4;
+  --g-norm: #026975;
+  --radius: 6px;
+  --gutter: 16px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.5 "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
+.mono { font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 12px; }
+
+/* Franja con la leyenda de coberturas MapBiomas */
+.leyenda-strip { display: flex; height: 6px; }
+.leyenda-strip span { flex: 1; }
+
+header.top { background: var(--surface); border-bottom: 1px solid var(--line); }
+header.top .wrap { padding-top: 22px; padding-bottom: 18px; }
+.eyebrow { margin: 0 0 4px; color: var(--brand); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+h1 { margin: 0; font-size: clamp(22px, 3.2vw, 30px); line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+.sub { margin: 6px 0 0; color: var(--ink-2); max-width: 76ch; }
+.params { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 16px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); }
+.params div { display: flex; flex-direction: column; }
+.params dt { color: var(--muted); font-size: 12px; }
+.params dd { margin: 0; font-weight: 600; }
+
+/* Pestañas + filtro de periodo */
+.barra { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+.barra .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 4px; }
+.tab {
+  appearance: none; border: 0; background: none; cursor: pointer;
+  padding: 14px 12px 12px; font-family: inherit; font-weight: 600; font-size: 15px; line-height: 1; color: var(--muted);
+  border-bottom: 3px solid transparent;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--brand); }
+.tab .n { display: inline-block; margin-right: 6px; color: var(--muted); font-weight: 400; }
+.periodo { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); padding: 8px 0; }
+.periodo select {
+  font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 5px 8px; min-height: 34px;
+}
+.periodo button {
+  font: inherit; font-size: 13px; color: var(--ink-2); background: none; cursor: pointer;
+  border: 1px solid var(--line); border-radius: var(--radius); padding: 5px 10px; min-height: 34px;
+}
+.periodo button:hover { color: var(--ink); border-color: var(--muted); }
+
+main { padding: 22px 0 40px; }
+[hidden] { display: none !important; }
+
+/* Encabezado de cada panel */
+.panel-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 24px; flex-wrap: wrap; margin-bottom: 16px; }
+.panel-head h2 { margin: 0; font-size: 20px; line-height: 1.25; }
+.panel-head p { margin: 4px 0 0; color: var(--ink-2); max-width: 70ch; }
+.grupos { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
+.grupos li { display: flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 2px; flex: none; display: inline-block; }
+
+/* Notas */
+.notas { margin: 0 0 16px; padding: 10px 14px; background: var(--surface); border-left: 3px solid var(--brand-deep); border-radius: 0 var(--radius) var(--radius) 0; font-size: 14px; color: var(--ink-2); }
+.notas ul { margin: 0; padding-left: 18px; }
+.notas li + li { margin-top: 4px; }
+
+/* Fichas de valores */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; border-top: 3px solid var(--c); }
+.kpi .lab { font-size: 13px; color: var(--ink-2); line-height: 1.3; min-height: 2.6em; }
+.kpi .val { font-size: 26px; font-weight: 700; line-height: 1.15; margin-top: 4px; }
+.kpi .val small { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+.kpi .ref { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+/* Tarjetas de gráficos */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 14px; }
+.grupo-titulo {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 8px;
+  margin: 10px 0 -4px; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2);
+}
+.grupo-titulo:first-child { margin-top: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 8px; min-width: 0; }
+.card.ancha { grid-column: 1 / -1; }
+.card-h { display: flex; gap: 10px; align-items: flex-start; }
+.card-h .sw { margin-top: 5px; }
+.card h3 { margin: 0; font-size: 16px; line-height: 1.3; font-weight: 600; }
+.card h3 .u { color: var(--muted); font-weight: 400; }
+.card .desc { margin: 2px 0 0; font-size: 13px; color: var(--muted); line-height: 1.35; }
+.card .orig { display: block; color: var(--muted); margin-top: 2px; }
+.leyenda-mini { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
+.leyenda-mini li { display: flex; align-items: center; gap: 6px; }
+.leyenda-mini .ln { width: 18px; height: 3px; border-radius: 2px; flex: none; }
+.leyenda-mini .bd { width: 14px; height: 10px; background: #e3e7e1; border-radius: 2px; flex: none; }
+.chart { position: relative; margin-top: 8px; height: 210px; touch-action: pan-y; }
+.card.ancha .chart { height: 270px; }
+.chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.chart text { font-family: inherit; font-size: 12px; fill: var(--muted); }
+.tip {
+  position: absolute; top: 0; pointer-events: none; z-index: 2;
+  background: var(--ink); color: #fff; border-radius: 4px; padding: 5px 8px;
+  font-size: 13px; line-height: 1.35; white-space: nowrap; opacity: 0; transition: opacity .1s;
+}
+.tip b { font-weight: 700; }
+.tip span { color: #c9d1cb; }
+.tip i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: 0; }
+
+/* Panel separado (descriptivos) */
+.panel-sep { border: 1px solid var(--line); border-radius: 8px; background: #eef1ec; overflow: hidden; }
+.panel-sep-band { background: var(--brand-deep); color: #fff; padding: 16px 18px; }
+.panel-sep-band .eyebrow { color: #9fd3ae; }
+.panel-sep-band h2 { margin: 0; font-size: 20px; }
+.panel-sep-band p { margin: 4px 0 0; color: #d4e3d8; max-width: 80ch; }
+.panel-sep-body { padding: 16px 18px 20px; }
+
+/* Tablas */
+.tabla { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.tabla-h { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; padding: 12px 14px; font-weight: 600; }
+.tabla-h span { font-weight: 400; font-size: 13px; color: var(--muted); }
+.tabla-scroll { overflow-x: auto; border-top: 1px solid var(--line); }
+.tabla-larga .tabla-scroll { max-height: 72vh; overflow-y: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--grid); }
+th { position: sticky; top: 0; background: #f7f8f6; color: var(--ink-2); font-weight: 600; vertical-align: bottom; }
+th .u { font-weight: 400; color: var(--muted); }
+th .mono { display: block; font-weight: 400; color: var(--muted); font-size: 11px; }
+th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
+th:first-child { background: #f7f8f6; z-index: 1; }
+tbody tr:hover td { background: #f3f7f4; }
+.descr td:first-child { white-space: normal; min-width: 170px; }
+.descr td:first-child .sw { margin-right: 6px; vertical-align: -1px; }
+td.ano { color: var(--muted); }
+.descargas { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 10px 14px; border-top: 1px solid var(--line); font-size: 14px; }
+.nota-tabla { margin: 12px 0 0; font-size: 13px; color: var(--ink-2); }
+a { color: #156a37; }
+
+footer { border-top: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 13px; }
+footer .wrap { padding-top: 16px; padding-bottom: 22px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
+footer p { margin: 0; }
+
+@media (max-width: 640px) {
+  .barra .wrap { flex-direction: column; align-items: stretch; gap: 0; }
+  .tabs { margin: 0 calc(-1 * var(--gutter)); }
+  .tab { flex: 1; padding: 13px 4px 11px; font-size: 14px; }
+  .tab .n { display: none; }
+  .periodo { border-top: 1px solid var(--grid); justify-content: space-between; }
+  .periodo label { display: none; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kpi { padding: 10px 11px; }
+  .kpi .val { font-size: 21px; }
+  .chart, .card.ancha .chart { height: 200px; }
+  .panel-sep { margin: 0 calc(-1 * var(--gutter)); border-radius: 0; border-left: 0; border-right: 0; }
+  .panel-sep-band, .panel-sep-body { padding-left: var(--gutter); padding-right: var(--gutter); }
+  .descr td:first-child { min-width: 130px; }
+}
+@media print {
+  .barra { position: static; }
+  [hidden] { display: block !important; }
+  .tabla-larga .tabla-scroll { max-height: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="leyenda-strip" aria-hidden="true">
+    <span style="background:#1f8d49"></span><span style="background:#7dc975"></span><span style="background:#04381d"></span>
+    <span style="background:#026975"></span><span style="background:#519799"></span><span style="background:#d6bc74"></span>
+    <span style="background:#edde8e"></span><span style="background:#ffefc3"></span><span style="background:#e974ed"></span>
+    <span style="background:#7a5900"></span><span style="background:#d4271e"></span><span style="background:#9c0027"></span>
+    <span style="background:#db4d4f"></span><span style="background:#ffaa5f"></span><span style="background:#2532e4"></span>
+  </div>
+  <div class="wrap">
+    <p class="eyebrow">Serie temporal 1986–2024 · Salidas conectividad 2</p>
+    <h1>Conectividad funcional del hábitat idóneo de <em>Thryophilus sernai</em></h1>
+    <p class="sub">Probabilidad de conectividad (PC) y área conectada equivalente (ECA) de cada año, calculadas con Makurhini sobre todos los parches de hábitat. Valores observados, sin modelos ni ajustes estadísticos.</p>
+    <dl class="params">
+      <div><dt>Área del paisaje</dt><dd>2.423,0 km²</dd></div>
+      <div><dt>Nodos</dt><dd>Todos los parches (8 celdas)</dd></div>
+      <div><dt>Distancia</dt><dd>Costo mínimo entre bordes</dd></div>
+      <div><dt>Dispersión</dt><dd>3,12 km · p = 0,5</dd></div>
+      <div><dt>Función</dt><dd>MK_dPCIIC()</dd></div>
+    </dl>
+  </div>
+</header>
+
+<div class="barra">
+  <div class="wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-anual" aria-controls="panel-anual" aria-selected="true"><span class="n">01</span>Conectividad anual</button>
+      <button class="tab" role="tab" id="tab-desc" aria-controls="panel-desc" aria-selected="false"><span class="n">02</span>Descriptivos</button>
+      <button class="tab" role="tab" id="tab-datos" aria-controls="panel-datos" aria-selected="false"><span class="n">03</span>Datos por año</button>
+    </div>
+    <div class="periodo">
+      <label for="desde">Periodo</label>
+      <select id="desde" aria-label="Año inicial"></select>
+      <span>–</span>
+      <select id="hasta" aria-label="Año final"></select>
+      <button type="button" id="reset">Serie completa</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section id="panel-anual" role="tabpanel" aria-labelledby="tab-anual">
+    <div class="panel-head">
+      <div>
+        <h2>Conectividad funcional por año</h2>
+        <p>Valor observado de cada métrica por año. Pase el cursor o toque un gráfico para leer el valor de cada año.</p>
+      </div>
+      <ul class="grupos" id="grupos-anual"></ul>
+    </div>
+    <div class="notas">
+      <ul>
+        <li><b>PC</b>: probabilidad de que dos puntos tomados al azar en el paisaje caigan en hábitat conectado entre sí (de 0 a 1). <b>ECA</b>: área de un único parche, totalmente conectado, que daría la misma PC. Se cumple PC = (ECA / área del paisaje)².</li>
+        <li>Distancias de costo mínimo entre bordes de parches sobre la matriz de resistencia de cada año; capacidad de dispersión de 3,12 km por la cobertura más permeable, con probabilidad de 0,5.</li>
+      </ul>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid" id="grid-anual"></div>
+  </section>
+
+  <section id="panel-desc" role="tabpanel" aria-labelledby="tab-desc" class="panel-sep" hidden>
+    <div class="panel-sep-band">
+      <p class="eyebrow">Panel 02 · Estadísticos descriptivos</p>
+      <h2>Descriptivos de la serie</h2>
+      <p>Resumen de los valores anuales del periodo seleccionado. Con la serie completa (1986–2024) coinciden con la hoja <span class="mono">descriptivos</span> del Excel.</p>
+    </div>
+    <div class="panel-sep-body">
+      <div class="tabla">
+        <div class="tabla-h">Estadísticos descriptivos <span id="desc-periodo"></span></div>
+        <div class="tabla-scroll"><table class="descr" id="tabla-desc"></table></div>
+        <div class="descargas">
+          <a href="data/descriptivos.csv" download>Descargar CSV (serie completa)</a>
+          <a href="data/conectividad_por_anio_PC_ECA.xlsx" download>Descargar Excel original</a>
+        </div>
+      </div>
+      <p class="nota-tabla">DE: desviación estándar (n − 1). CV: coeficiente de variación = 100 · DE / media. Q1 y Q3: primer y tercer cuartil.</p>
+    </div>
+  </section>
+
+  <section id="panel-datos" role="tabpanel" aria-labelledby="tab-datos" hidden>
+    <div class="panel-head">
+      <div>
+        <h2>Conectividad por año</h2>
+        <p>Valores de la hoja <span class="mono">conectividad_por_anio</span> para las variables del dashboard.</p>
+      </div>
+    </div>
+    <div class="tabla tabla-larga">
+      <div class="tabla-h">Tabla de datos · conectividad por año <span id="datos-periodo"></span></div>
+      <div class="tabla-scroll"><table id="tabla-datos"></table></div>
+      <div class="descargas">
+        <a href="data/conectividad_por_anio.csv" download>Descargar CSV</a>
+        <a href="data/conectividad_por_anio_PC_ECA.xlsx" download>Descargar Excel original</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Fuente: <span class="mono">conectividad_por_anio_PC_ECA.xlsx</span> (hojas conectividad_por_anio y descriptivos), Makurhini::MK_dPCIIC().</p>
+    <p>Colores basados en la leyenda de coberturas y usos del suelo de MapBiomas.</p>
+  </div>
+</footer>
+
+<script src="data/datos.js"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.DATOS.anual;
+
+  var GRUPOS = {
+    habitat: { nombre: "Hábitat (nodos)",        color: "#1f8d49" },
+    conect:  { nombre: "Conectividad funcional", color: "#2532e4" },
+    norm:    { nombre: "ECA normalizado",        color: "#026975" }
+  };
+
+  // Variables en el orden de la hoja conectividad_por_anio
+  var M = [
+    { k: "n_nodos",         nombre: "Número de nodos",                  u: "",    dec: 0, g: "habitat", desc: "Parches de hábitat usados como nodos del grafo: todos, sin umbral de área." },
+    { k: "area_nodos_km2",  nombre: "Área de hábitat",                  u: "km²", dec: 1, g: "habitat", desc: "Suma del área de los nodos." },
+    { k: "PC",              nombre: "Probabilidad de conectividad (PC)", u: "",   dec: 5, g: "conect",  desc: "Probabilidad de que dos puntos tomados al azar en el paisaje caigan en hábitat conectado (0–1)." },
+    { k: "ECA_km2",         nombre: "Área conectada equivalente (ECA)", u: "km²", dec: 1, g: "conect",  desc: "Área de un único parche, totalmente conectado, que daría la misma PC que la red de parches." },
+    { k: "ECA_pct_paisaje", nombre: "ECA como % del área del paisaje",  u: "%",   dec: 2, g: "norm",    desc: "100 · ECA / área del paisaje (2.423 km²)." },
+    { k: "ECA_pct_habitat", nombre: "ECA como % del área de hábitat",   u: "%",   dec: 1, g: "norm",    desc: "100 · ECA / área de hábitat: fracción del hábitat que funciona como un bloque conectado." }
+  ];
+  var BY = {};
+  M.forEach(function (m) { BY[m.k] = m; });
+
+  var YEARS = D.anio;
+  var state = { a: YEARS[0], b: YEARS[YEARS.length - 1] };
+
+  var fmts = {};
+  function fmt(v, d) {
+    if (v == null || isNaN(v)) return "–";
+    if (!fmts[d]) fmts[d] = new Intl.NumberFormat("es-CO", { minimumFractionDigits: d, maximumFractionDigits: d });
+    return fmts[d].format(v);
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  function niceScale(min, max, count) {
+    if (max - min < 1e-12) { var pad = Math.abs(min) * 0.1 || 1; min -= pad; max += pad; }
+    var raw = (max - min) / count;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var n = raw / mag;
+    var step = (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * mag;
+    var lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
+    var ticks = [];
+    for (var v = lo; v <= hi + step / 2; v += step) ticks.push(+v.toFixed(10));
+    var dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+    return { lo: lo, hi: hi, ticks: ticks, dec: dec };
+  }
+
+  function indicesPeriodo() {
+    var idx = [];
+    YEARS.forEach(function (yr, i) { if (yr >= state.a && yr <= state.b) idx.push(i); });
+    return idx;
+  }
+
+  // ---------- Gráfico de línea (SVG) con cruz y tooltip; una o dos series ----------
+  var charts = [];
+  function crearChart(el, cfg) {
+    var c = { el: el, cfg: cfg };
+    var tip = document.createElement("div");
+    tip.className = "tip";
+    el.appendChild(tip);
+    c.tip = tip;
+    new ResizeObserver(function () { requestAnimationFrame(function () { dibujar(c); }); }).observe(el);
+    charts.push(c);
+    return c;
+  }
+
+  function dibujar(c) {
+    var el = c.el, s = c.cfg;
+    var W = el.clientWidth, H = el.clientHeight;
+    if (!W || !H) return;
+    var idx = indicesPeriodo();
+    var n = idx.length;
+    var ys = idx.map(function (i) { return YEARS[i]; });
+    var series = s.series.map(function (se) {
+      return { nombre: se.nombre, color: se.color, v: idx.map(function (i) { return se.values[i]; }) };
+    });
+    var todos = [].concat.apply([], series.map(function (se) { return se.v; }));
+    var sc = niceScale(Math.min.apply(null, todos), Math.max.apply(null, todos), H < 200 ? 3 : 4);
+    var labels = sc.ticks.map(function (t) { return fmt(t, sc.dec); });
+    var ml = Math.max.apply(null, labels.map(function (l) { return l.length; })) * 6.6 + 12;
+    var mr = 10, mt = 10, mb = 24;
+    var iw = W - ml - mr, ih = H - mt - mb;
+    function X(i) { return ml + (n === 1 ? iw / 2 : (i * iw) / (n - 1)); }
+    function Y(v) { return mt + ih - ((v - sc.lo) / (sc.hi - sc.lo)) * ih; }
+    function linea(v) { return v.map(function (y, i) { return (i ? "L" : "M") + X(i).toFixed(1) + " " + Y(y).toFixed(1); }).join(""); }
+
+    var paso = n <= 12 ? 1 : (iw / n < 14 ? 10 : 5);
+    var svg = '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(s.nombre + ", " + ys[0] + "–" + ys[n - 1]) + '">';
+    sc.ticks.forEach(function (t, i) {
+      var y = Y(t).toFixed(1);
+      svg += '<line x1="' + ml + '" x2="' + (W - mr) + '" y1="' + y + '" y2="' + y + '" stroke="' + (i === 0 ? "#c9cfc8" : "#eceee9") + '" stroke-width="1"/>';
+      svg += '<text x="' + (ml - 8) + '" y="' + y + '" dy="0.32em" text-anchor="end">' + labels[i] + "</text>";
+    });
+    ys.forEach(function (yr, i) {
+      if (paso === 1 || yr % paso === 0) {
+        svg += '<line x1="' + X(i).toFixed(1) + '" x2="' + X(i).toFixed(1) + '" y1="' + (mt + ih) + '" y2="' + (mt + ih + 4) + '" stroke="#c9cfc8"/>';
+        svg += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle">' + yr + "</text>";
+      }
+    });
+    // Banda entre las dos series (hábitat que no queda funcionalmente conectado)
+    if (s.banda && series.length === 2) {
+      var vuelta = series[1].v.map(function (y, i) { return [X(i), Y(y)]; }).reverse()
+        .map(function (p) { return "L" + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join("");
+      svg += '<path d="' + linea(series[0].v) + vuelta + 'Z" fill="#e3e7e1"/>';
+    }
+    var rad = iw / n > 9 ? 2.6 : 1.8;
+    series.forEach(function (se) {
+      svg += '<path d="' + linea(se.v) + '" fill="none" stroke="' + se.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      se.v.forEach(function (v, i) {
+        svg += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="' + rad + '" fill="' + se.color + '"/>';
+      });
+    });
+    svg += '<line class="cruz" x1="0" x2="0" y1="' + mt + '" y2="' + (mt + ih) + '" stroke="#48544d" stroke-width="1" stroke-dasharray="3 3" visibility="hidden"/>';
+    series.forEach(function (se) {
+      svg += '<circle class="foco" r="5" fill="' + se.color + '" stroke="#fff" stroke-width="2" visibility="hidden"/>';
+    });
+    svg += '<rect class="hit" x="' + ml + '" y="0" width="' + iw + '" height="' + H + '" fill="transparent"/>';
+    svg += "</svg>";
+
+    var old = el.querySelector("svg");
+    if (old) old.remove();
+    el.insertAdjacentHTML("afterbegin", svg);
+
+    var svgEl = el.querySelector("svg");
+    var cruz = svgEl.querySelector(".cruz"), focos = svgEl.querySelectorAll(".foco"), hit = svgEl.querySelector(".hit");
+    function mostrar(ev) {
+      var box = svgEl.getBoundingClientRect();
+      var px = ev.clientX - box.left;
+      var i = n === 1 ? 0 : Math.round(((px - ml) / iw) * (n - 1));
+      i = Math.max(0, Math.min(n - 1, i));
+      var x = X(i), yv = [];
+      cruz.setAttribute("x1", x); cruz.setAttribute("x2", x); cruz.setAttribute("visibility", "visible");
+      series.forEach(function (se, k) {
+        var y = Y(se.v[i]); yv.push(y);
+        focos[k].setAttribute("cx", x); focos[k].setAttribute("cy", y); focos[k].setAttribute("visibility", "visible");
+      });
+      var u = s.u ? " <span>" + esc(s.u) + "</span>" : "";
+      if (series.length === 1) {
+        c.tip.innerHTML = "<b>" + ys[i] + "</b> &nbsp;" + fmt(series[0].v[i], s.dec) + u;
+      } else {
+        c.tip.innerHTML = "<b>" + ys[i] + "</b>" + series.map(function (se) {
+          return '<br><i style="background:' + se.color + '"></i>' + esc(se.nombre) + ": " + fmt(se.v[i], s.dec) + u;
+        }).join("") + (s.extra ? "<br><span>" + s.extra(idx[i]) + "</span>" : "");
+      }
+      c.tip.style.opacity = 1;
+      var tw = c.tip.offsetWidth, th = c.tip.offsetHeight;
+      var left = x + 10;
+      if (left + tw > W) left = x - tw - 10;
+      var top = Math.min.apply(null, yv) - th - 8;
+      if (top < 0) top = Math.max.apply(null, yv) + 10;
+      c.tip.style.left = Math.max(0, left) + "px";
+      c.tip.style.top = Math.max(0, Math.min(H - th, top)) + "px";
+    }
+    function ocultar() {
+      cruz.setAttribute("visibility", "hidden");
+      focos.forEach(function (f) { f.setAttribute("visibility", "hidden"); });
+      c.tip.style.opacity = 0;
+    }
+    hit.addEventListener("pointermove", mostrar);
+    hit.addEventListener("pointerdown", mostrar);
+    hit.addEventListener("pointerleave", ocultar);
+  }
+
+  // ---------- Panel 01: gráficos ----------
+  function leyendaGrupos(ul, claves) {
+    ul.innerHTML = claves.map(function (g) {
+      return '<li><span class="sw" style="background:' + GRUPOS[g].color + '"></span>' + GRUPOS[g].nombre + "</li>";
+    }).join("");
+  }
+  leyendaGrupos(document.getElementById("grupos-anual"), ["habitat", "conect", "norm"]);
+
+  var gridA = document.getElementById("grid-anual");
+  function titulo(texto, colores) {
+    var h = document.createElement("div");
+    h.className = "grupo-titulo";
+    h.innerHTML = colores.map(function (c) { return '<span class="sw" style="background:' + c + '"></span>'; }).join("") + esc(texto);
+    gridA.appendChild(h);
+  }
+  function tarjeta(m) {
+    var card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML =
+      '<div class="card-h"><span class="sw" style="background:' + GRUPOS[m.g].color + '"></span><div>' +
+      "<h3>" + esc(m.nombre) + (m.u ? ' <span class="u">(' + esc(m.u) + ")</span>" : "") + "</h3>" +
+      '<p class="desc">' + esc(m.desc) + "</p>" +
+      '<span class="orig mono">' + esc(m.k) + "</span>" +
+      '</div></div><div class="chart"></div>';
+    gridA.appendChild(card);
+    crearChart(card.querySelector(".chart"), {
+      nombre: m.nombre, u: m.u, dec: m.dec, series: [{ nombre: m.nombre, values: D[m.k], color: GRUPOS[m.g].color }]
+    });
+  }
+
+  titulo("Conectividad funcional", [GRUPOS.conect.color]);
+  tarjeta(BY.PC);
+  tarjeta(BY.ECA_km2);
+
+  titulo("ECA frente al área de hábitat", [GRUPOS.habitat.color, GRUPOS.conect.color]);
+  var ancha = document.createElement("article");
+  ancha.className = "card ancha";
+  ancha.innerHTML =
+    '<div class="card-h"><div>' +
+    '<h3>Área conectada equivalente frente al área de hábitat <span class="u">(km²)</span></h3>' +
+    '<p class="desc">La banda gris es el hábitat que no queda funcionalmente conectado para la especie.</p>' +
+    '<span class="orig mono">area_nodos_km2 · ECA_km2</span>' +
+    '<ul class="leyenda-mini">' +
+    '<li><span class="ln" style="background:' + GRUPOS.habitat.color + '"></span>Área de hábitat (todos los parches)</li>' +
+    '<li><span class="ln" style="background:' + GRUPOS.conect.color + '"></span>ECA (hábitat funcionalmente conectado)</li>' +
+    '<li><span class="bd"></span>Hábitat no conectado</li></ul>' +
+    '</div></div><div class="chart"></div>';
+  gridA.appendChild(ancha);
+  crearChart(ancha.querySelector(".chart"), {
+    nombre: "ECA frente al área de hábitat", u: "km²", dec: 1, banda: true,
+    series: [
+      { nombre: "Área de hábitat", values: D.area_nodos_km2, color: GRUPOS.habitat.color },
+      { nombre: "ECA", values: D.ECA_km2, color: GRUPOS.conect.color }
+    ],
+    extra: function (i) { return "ECA = " + fmt(D.ECA_pct_habitat[i], 1) + " % del hábitat"; }
+  });
+
+  titulo("ECA normalizado", [GRUPOS.norm.color]);
+  tarjeta(BY.ECA_pct_paisaje);
+  tarjeta(BY.ECA_pct_habitat);
+
+  // ---------- Panel 02: descriptivos (recalculados para el periodo) ----------
+  var DESCR = ["PC", "ECA_km2", "ECA_pct_paisaje", "ECA_pct_habitat"];
+  function cuantil(ord, p) {                     // tipo 7 (el de R por defecto)
+    var h = (ord.length - 1) * p, lo = Math.floor(h), hi = Math.ceil(h);
+    return ord[lo] + (h - lo) * (ord[hi] - ord[lo]);
+  }
+  function describir(k, idx) {
+    var v = idx.map(function (i) { return D[k][i]; }), yrs = idx.map(function (i) { return YEARS[i]; });
+    var n = v.length, media = v.reduce(function (a, b) { return a + b; }, 0) / n;
+    var de = n > 1 ? Math.sqrt(v.reduce(function (a, b) { return a + (b - media) * (b - media); }, 0) / (n - 1)) : NaN;
+    var ord = v.slice().sort(function (a, b) { return a - b; });
+    var iMin = v.indexOf(ord[0]), iMax = v.indexOf(ord[n - 1]);
+    return { n: n, media: media, de: de, cv: 100 * de / media, min: ord[0], anioMin: yrs[iMin],
+             q1: cuantil(ord, 0.25), med: cuantil(ord, 0.5), q3: cuantil(ord, 0.75), max: ord[n - 1], anioMax: yrs[iMax] };
+  }
+  function pintarDescr(idx) {
+    var cab = ["Métrica", "n", "Media", "DE", "CV (%)", "Mínimo", "Año", "Q1", "Mediana", "Q3", "Máximo", "Año"];
+    var h = "<thead><tr>" + cab.map(function (c) { return "<th>" + c + "</th>"; }).join("") + "</tr></thead><tbody>";
+    DESCR.forEach(function (k) {
+      var m = BY[k], r = describir(k, idx), d = m.dec;
+      h += '<tr><td><span class="sw" style="background:' + GRUPOS[m.g].color + '"></span>' + esc(m.nombre) +
+        (m.u ? ' <span style="color:#6f7a73">(' + esc(m.u) + ")</span>" : "") + "</td>" +
+        "<td>" + r.n + "</td><td>" + fmt(r.media, d) + "</td><td>" + fmt(r.de, d) + "</td><td>" + fmt(r.cv, 1) + "</td>" +
+        "<td>" + fmt(r.min, d) + '</td><td class="ano">' + r.anioMin + "</td>" +
+        "<td>" + fmt(r.q1, d) + "</td><td>" + fmt(r.med, d) + "</td><td>" + fmt(r.q3, d) + "</td>" +
+        "<td>" + fmt(r.max, d) + '</td><td class="ano">' + r.anioMax + "</td></tr>";
+    });
+    document.getElementById("tabla-desc").innerHTML = h + "</tbody>";
+  }
+
+  // ---------- Panel 03: tabla por año ----------
+  function pintarDatos(idx) {
+    var h = "<thead><tr><th>Año<span class='mono'>anio</span></th>" + M.map(function (m) {
+      return "<th>" + esc(m.nombre) + (m.u ? " <span class='u'>(" + esc(m.u) + ")</span>" : "") + "<span class='mono'>" + esc(m.k) + "</span></th>";
+    }).join("") + "</tr></thead><tbody>";
+    idx.forEach(function (i) {
+      h += "<tr><td>" + YEARS[i] + "</td>" + M.map(function (m) { return "<td>" + fmt(D[m.k][i], m.dec) + "</td>"; }).join("") + "</tr>";
+    });
+    document.getElementById("tabla-datos").innerHTML = h + "</tbody>";
+  }
+
+  // ---------- Fichas ----------
+  function valorEn(k, yr) { var i = YEARS.indexOf(yr); return i < 0 ? null : D[k][i]; }
+  function pintarKpis() {
+    document.getElementById("kpis").innerHTML = M.map(function (m) {
+      var u = m.u ? "<small>" + esc(m.u) + "</small>" : "";
+      return '<div class="kpi" style="--c:' + GRUPOS[m.g].color + '"><div class="lab">' + esc(m.nombre) + " · " + state.b + "</div>" +
+        '<div class="val">' + fmt(valorEn(m.k, state.b), m.dec) + u + "</div>" +
+        '<div class="ref">' + state.a + ": " + fmt(valorEn(m.k, state.a), m.dec) + (m.u ? " " + esc(m.u) : "") + "</div></div>";
+    }).join("");
+  }
+
+  function actualizar() {
+    var idx = indicesPeriodo();
+    var txt = "Periodo " + state.a + "–" + state.b + " · " + idx.length + " años";
+    document.getElementById("desc-periodo").textContent = txt;
+    document.getElementById("datos-periodo").textContent = txt;
+    pintarKpis();
+    pintarDescr(idx);
+    pintarDatos(idx);
+    charts.forEach(dibujar);
+  }
+
+  // ---------- Filtro de periodo ----------
+  var selA = document.getElementById("desde"), selB = document.getElementById("hasta");
+  selA.innerHTML = selB.innerHTML = YEARS.map(function (y) { return "<option>" + y + "</option>"; }).join("");
+  function sincronizar() { selA.value = state.a; selB.value = state.b; }
+  selA.addEventListener("change", function () {
+    state.a = +selA.value; if (state.a >= state.b) state.b = Math.min(state.a + 1, YEARS[YEARS.length - 1]);
+    if (state.a >= state.b) state.a = state.b - 1;
+    sincronizar(); actualizar();
+  });
+  selB.addEventListener("change", function () {
+    state.b = +selB.value; if (state.b <= state.a) state.a = Math.max(state.b - 1, YEARS[0]);
+    if (state.b <= state.a) state.b = state.a + 1;
+    sincronizar(); actualizar();
+  });
+  document.getElementById("reset").addEventListener("click", function () {
+    state.a = YEARS[0]; state.b = YEARS[YEARS.length - 1]; sincronizar(); actualizar();
+  });
+
+  // ---------- Pestañas ----------
+  var tabs = { anual: document.getElementById("tab-anual"), descriptivos: document.getElementById("tab-desc"), datos: document.getElementById("tab-datos") };
+  var panels = { anual: document.getElementById("panel-anual"), descriptivos: document.getElementById("panel-desc"), datos: document.getElementById("panel-datos") };
+  function desdeHash() { var h = location.hash.slice(1); return tabs[h] ? h : "anual"; }
+  function abrir(cual) {
+    Object.keys(tabs).forEach(function (k) {
+      var on = k === cual;
+      tabs[k].setAttribute("aria-selected", on);
+      panels[k].hidden = !on;
+    });
+    if (location.hash !== "#" + cual) history.replaceState(null, "", "#" + cual);
+  }
+  Object.keys(tabs).forEach(function (k) { tabs[k].addEventListener("click", function () { abrir(k); }); });
+  window.addEventListener("hashchange", function () { abrir(desdeHash()); });
+
+  sincronizar();
+  actualizar();
+  abrir(desdeHash());
+})();
+</script>
+</body>
+</html>
