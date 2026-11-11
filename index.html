@@ -108,7 +108,6 @@ main { padding: 22px 0 40px; }
 .grupo-titulo:first-child { margin-top: 0; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 14px 8px; min-width: 0; display: flex; flex-direction: column; }
 .card .chart { margin-top: auto; flex: none; }     /* gráficos alineados abajo aunque el texto tenga distinto largo */
-.card.ancha { grid-column: 1 / -1; }
 .card-h { display: flex; gap: 10px; align-items: flex-start; }
 .card-h .sw { margin-top: 5px; }
 .card h3 { margin: 0; font-size: 16px; line-height: 1.3; font-weight: 600; }
@@ -121,7 +120,6 @@ main { padding: 22px 0 40px; }
 .leyenda-mini .ln { width: 18px; height: 3px; border-radius: 2px; flex: none; }
 .leyenda-mini .bd { width: 14px; height: 10px; background: #e3e7e1; border-radius: 2px; flex: none; }
 .chart { position: relative; margin-top: 8px; height: 210px; touch-action: pan-y; }
-.card.ancha .chart { height: 270px; }
 .chart svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .chart text { font-family: inherit; font-size: 12px; fill: var(--muted); }
 .tip {
@@ -176,7 +174,7 @@ footer p { margin: 0; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .kpi { padding: 10px 11px; }
   .kpi .val { font-size: 21px; }
-  .chart, .card.ancha .chart { height: 200px; }
+  .chart { height: 200px; }
   .panel-sep { margin: 0 calc(-1 * var(--gutter)); border-radius: 0; border-left: 0; border-right: 0; }
   .panel-sep-band, .panel-sep-body { padding-left: var(--gutter); padding-right: var(--gutter); }
   .descr td:first-child { min-width: 130px; }
@@ -502,10 +500,10 @@ footer p { margin: 0; }
       nombre: m.nombre, u: m.u, dec: m.dec, series: [{ nombre: m.nombre, values: D[m.k], color: GRUPOS[m.g].color }]
     });
   }
-  // Tarjeta ancha con dos series y la banda entre ellas
-  function tarjetaAncha(o) {
+  // Tarjeta con dos series y la banda entre ellas
+  function tarjetaDoble(o) {
     var card = document.createElement("article");
-    card.className = "card ancha";
+    card.className = "card";
     card.innerHTML =
       '<div class="card-h"><div>' +
       "<h3>" + esc(o.titulo) + (o.u ? ' <span class="u">(' + esc(o.u) + ")</span>" : "") + "</h3>" +
@@ -523,8 +521,8 @@ footer p { margin: 0; }
   tarjeta(BY.PC);
   tarjeta(BY.ECA_km2);
 
-  titulo("PC observado frente al PC máximo posible", [GRUPOS.habitat.color, GRUPOS.conect.color, GRUPOS.norm.color]);
-  tarjetaAncha({
+  titulo("Conectividad observada frente a la máxima posible", [GRUPOS.habitat.color, GRUPOS.conect.color]);
+  tarjetaDoble({
     titulo: "PC máximo posible frente a PC observado", u: "", dec: 5, orig: "PC_max · PC",
     desc: "PC máximo posible = (área de hábitat / área del paisaje)²: el PC que habría si todo el hábitat fuera un único parche continuo.",
     banda: "Conectividad perdida por la separación entre parches",
@@ -534,11 +532,7 @@ footer p { margin: 0; }
     ],
     extra: function (i) { return "PC observado = " + fmt(D.PC_obs_max_pct[i], 1) + " % del máximo"; }
   });
-  tarjeta(BY.hab_pct_paisaje);
-  tarjeta(BY.PC_obs_max_pct);
-
-  titulo("ECA frente al área de hábitat", [GRUPOS.habitat.color, GRUPOS.conect.color]);
-  tarjetaAncha({
+  tarjetaDoble({
     titulo: "Área conectada equivalente frente al área de hábitat", u: "km²", dec: 1, orig: "area_nodos_km2 · ECA_km2",
     desc: "La banda gris es el hábitat que no queda funcionalmente conectado para la especie.",
     banda: "Hábitat no conectado",
@@ -548,6 +542,10 @@ footer p { margin: 0; }
     ],
     extra: function (i) { return "ECA = " + fmt(D.ECA_pct_habitat[i], 1) + " % del hábitat"; }
   });
+
+  titulo("Hábitat en el paisaje y PC observado / máximo", [GRUPOS.habitat.color, GRUPOS.norm.color]);
+  tarjeta(BY.hab_pct_paisaje);
+  tarjeta(BY.PC_obs_max_pct);
 
   titulo("ECA normalizado", [GRUPOS.norm.color]);
   tarjeta(BY.ECA_pct_paisaje);

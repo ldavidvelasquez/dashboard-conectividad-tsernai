@@ -47,14 +47,14 @@ LA se obtiene del propio Excel: LA = 100 · `ECA_km2` / `ECA_pct_paisaje` = 2 42
   - "PC observado / máximo separa la conectividad de la cantidad de hábitat";
   - ECA.
 - Fichas con el valor del último año del periodo, más el del primer año como referencia.
-- Ocho gráficos en cuatro grupos:
-  - **Conectividad funcional:** PC por año; ECA por año.
-  - **PC observado frente al PC máximo posible:**
+- Ocho gráficos en cuatro grupos de dos, uno al lado del otro. En celular quedan en una columna.
+  - **Conectividad funcional:** PC por año | ECA por año.
+  - **Conectividad observada frente a la máxima posible:**
     - PC máximo posible frente a PC observado: dos líneas; la banda gris es la conectividad perdida por la separación entre parches;
-    - Hábitat (% del paisaje);
-    - PC observado / máximo.
-  - **ECA frente al área de hábitat:** dos líneas; la banda gris es el hábitat no conectado.
-  - **ECA normalizado:** ECA como % del área del paisaje; ECA como % del área de hábitat.
+    - ECA frente al área de hábitat: dos líneas; la banda gris es el hábitat no conectado.
+  - **Hábitat en el paisaje y PC observado / máximo:** Hábitat (% del paisaje) | PC observado / máximo.
+  - **ECA normalizado:** ECA como % del área del paisaje | ECA como % del área de hábitat.
+- Las tarjetas de dos series se construyen con `tarjetaDoble()` y las de una serie con `tarjeta()`.
 - Cada gráfico lleva título, una fórmula o definición breve y el nombre de la variable. Sin notas de interpretación: el usuario pidió quitarlas.
 
 **02 · Descriptivos.** Panel visualmente separado, con banda verde oscuro.
