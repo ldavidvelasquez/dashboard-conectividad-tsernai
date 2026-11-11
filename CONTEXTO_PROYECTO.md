@@ -42,9 +42,8 @@ LA se obtiene del propio Excel: LA = 100 · `ECA_km2` / `ECA_pct_paisaje` = 2 42
 - Debajo hay un selector de periodo (año inicial y final) que filtra las tres pestañas.
 
 **01 · Conectividad anual.**
-- Nota con tres definiciones, todas con el texto que eligió el usuario:
+- Nota con dos definiciones, con el texto que eligió el usuario:
   - PC, solo la primera frase de su texto;
-  - "PC observado / máximo separa la conectividad de la cantidad de hábitat";
   - ECA.
 - Fichas con el valor del último año del periodo, más el del primer año como referencia.
 - Ocho gráficos en cuatro grupos de dos, uno al lado del otro. En celular quedan en una columna.
@@ -81,6 +80,7 @@ LA se obtiene del propio Excel: LA = 100 · `ECA_km2` / `ECA_pct_paisaje` = 2 42
      - tabla del PC observado frente al máximo.
    - Después el usuario pidió:
      - quitar de las definiciones las frases sobre el 17 % del paisaje, la fórmula del PC máximo posible y la de distancias de costo mínimo;
+     - quitar la línea "PC observado / máximo separa la conectividad de la cantidad de hábitat";
      - quitar las notas "Cómo leerlo" de los gráficos.
 2. **Mismo diseño que el dashboard de fragmentación:** estética sobria, técnica y profesional, con la paleta de la leyenda de **MapBiomas**.
 3. **Valores observados:** sin modelos, tendencias ajustadas ni pruebas. La única síntesis estadística es la tabla de descriptivos, que el usuario pidió.
