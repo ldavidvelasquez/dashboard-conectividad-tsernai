@@ -42,7 +42,10 @@ LA se obtiene del propio Excel: LA = 100 · `ECA_km2` / `ECA_pct_paisaje` = 2 42
 - Debajo hay un selector de periodo (año inicial y final) que filtra las tres pestañas.
 
 **01 · Conectividad anual.**
-- Nota con las definiciones de PC (texto del usuario, literal), PC máximo posible y ECA.
+- Nota con tres definiciones, todas con el texto que eligió el usuario:
+  - PC, solo la primera frase de su texto;
+  - "PC observado / máximo separa la conectividad de la cantidad de hábitat";
+  - ECA.
 - Fichas con el valor del último año del periodo, más el del primer año como referencia.
 - Ocho gráficos en cuatro grupos:
   - **Conectividad funcional:** PC por año; ECA por año.
@@ -52,7 +55,7 @@ LA se obtiene del propio Excel: LA = 100 · `ECA_km2` / `ECA_pct_paisaje` = 2 42
     - PC observado / máximo.
   - **ECA frente al área de hábitat:** dos líneas; la banda gris es el hábitat no conectado.
   - **ECA normalizado:** ECA como % del área del paisaje; ECA como % del área de hábitat.
-- Encima de cada gráfico hay una nota "Cómo leerlo" con una interpretación breve. Los textos están en las propiedades `interp` de `M` y `M_PCMAX`, y en las llamadas a `tarjetaAncha()`.
+- Cada gráfico lleva título, una fórmula o definición breve y el nombre de la variable. Sin notas de interpretación: el usuario pidió quitarlas.
 
 **02 · Descriptivos.** Panel visualmente separado, con banda verde oscuro.
 - Tabla de n, media, DE, CV, mínimo (año), Q1, mediana, Q3 y máximo (año) para PC, ECA, ECA % del paisaje y ECA % del hábitat.
@@ -75,8 +78,10 @@ LA se obtiene del propio Excel: LA = 100 · `ECA_km2` / `ECA_pct_paisaje` = 2 42
    - Añadido el 11 de noviembre:
      - definición del PC con el texto literal del usuario;
      - gráficos de PC máximo posible frente a PC observado, Hábitat (% del paisaje) y PC observado / máximo;
-     - tabla del PC observado frente al máximo;
-     - una interpretación breve encima de cada gráfico.
+     - tabla del PC observado frente al máximo.
+   - Después el usuario pidió:
+     - quitar de las definiciones las frases sobre el 17 % del paisaje, la fórmula del PC máximo posible y la de distancias de costo mínimo;
+     - quitar las notas "Cómo leerlo" de los gráficos.
 2. **Mismo diseño que el dashboard de fragmentación:** estética sobria, técnica y profesional, con la paleta de la leyenda de **MapBiomas**.
 3. **Valores observados:** sin modelos, tendencias ajustadas ni pruebas. La única síntesis estadística es la tabla de descriptivos, que el usuario pidió.
 4. **Optimizado para celular y computador.** Se verificó a 390 px (dentro de un iframe) y a 1366 px de ancho, sin desplazamiento horizontal de la página.
@@ -141,4 +146,4 @@ En `index.html` las variables se definen en el arreglo `M` (nombre en español, 
 
 - **11 de noviembre de 2026:**
   - Se creó el dashboard (pestañas 01 a 03) a partir de los resultados de `SALIDAS_CONECTIVIDAD2` y se publicó en GitHub Pages.
-  - Se añadieron la comparación del PC observado con el PC máximo posible (tres gráficos y una tabla), la definición del PC y las notas "Cómo leerlo".
+  - Se añadieron la comparación del PC observado con el PC máximo posible (tres gráficos y una tabla) y la definición del PC.

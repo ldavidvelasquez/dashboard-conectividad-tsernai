@@ -115,8 +115,7 @@ main { padding: 22px 0 40px; }
 .card h3 .u { color: var(--muted); font-weight: 400; }
 .card .desc { margin: 2px 0 0; font-size: 13px; color: var(--muted); line-height: 1.35; }
 .card .orig { display: block; color: var(--muted); margin-top: 2px; }
-.card .interp { margin: 10px 0 8px; padding: 7px 10px; background: #f4f6f2; border-left: 3px solid var(--line); border-radius: 0 4px 4px 0; font-size: 13px; color: var(--ink-2); line-height: 1.42; }
-.card .interp b { color: var(--ink); font-weight: 600; }
+.card-h { margin-bottom: 8px; }
 .leyenda-mini { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
 .leyenda-mini li { display: flex; align-items: center; gap: 6px; }
 .leyenda-mini .ln { width: 18px; height: 3px; border-radius: 2px; flex: none; }
@@ -242,10 +241,9 @@ footer p { margin: 0; }
     </div>
     <div class="notas">
       <ul>
-        <li><b>PC</b>: es la probabilidad de que dos puntos tomados al azar en todo el paisaje (los 2 423 km²) caigan ambos en hábitat y además en hábitat conectado entre sí. Si el hábitat ocupa el 17 % del paisaje, la mayoría de los puntos al azar caen fuera de él y el PC sale bajo aunque el hábitat estuviera perfectamente conectado.</li>
-        <li><b>PC máximo posible</b> = (área de hábitat / área del paisaje)²: el PC que habría si todo el hábitat formara un único parche continuo. <b>PC observado / máximo</b> separa la conectividad de la cantidad de hábitat.</li>
+        <li><b>PC</b>: es la probabilidad de que dos puntos tomados al azar en todo el paisaje (los 2 423 km²) caigan ambos en hábitat y además en hábitat conectado entre sí.</li>
+        <li><b>PC observado / máximo</b> separa la conectividad de la cantidad de hábitat.</li>
         <li><b>ECA</b>: área de un único parche, totalmente conectado, que daría la misma PC. Se cumple PC = (ECA / área del paisaje)².</li>
-        <li>Distancias de costo mínimo entre bordes de parches sobre la matriz de resistencia de cada año; capacidad de dispersión de 3,12 km por la cobertura más permeable, con probabilidad de 0,5.</li>
       </ul>
     </div>
     <div class="kpis" id="kpis"></div>
@@ -321,22 +319,16 @@ footer p { margin: 0; }
   var M = [
     { k: "n_nodos",         nombre: "Número de nodos",                  u: "",    dec: 0, g: "habitat", desc: "Parches de hábitat usados como nodos del grafo: todos, sin umbral de área." },
     { k: "area_nodos_km2",  nombre: "Área de hábitat",                  u: "km²", dec: 1, g: "habitat", desc: "Suma del área de los nodos." },
-    { k: "PC",              nombre: "Probabilidad de conectividad (PC)", u: "",   dec: 5, g: "conect",  desc: "Probabilidad de que dos puntos tomados al azar en el paisaje caigan en hábitat conectado (0–1).",
-      interp: "Cuanto más alto, más hábitat y mejor conectado. Como el hábitat ocupa una fracción pequeña del paisaje, sus valores son bajos por construcción (ver PC máximo posible): compárelo entre años, no con un umbral fijo." },
-    { k: "ECA_km2",         nombre: "Área conectada equivalente (ECA)", u: "km²", dec: 1, g: "conect",  desc: "Área de un único parche, totalmente conectado, que daría la misma PC que la red de parches.",
-      interp: "Traduce el PC a superficie: cuántos km² de hábitat funcionan como si fueran un solo parche conectado. Si sube, la especie dispone de más hábitat alcanzable." },
-    { k: "ECA_pct_paisaje", nombre: "ECA como % del área del paisaje",  u: "%",   dec: 2, g: "norm",    desc: "100 · ECA / área del paisaje (2.423 km²).",
-      interp: "Es el ECA relativo al área de estudio y equivale a 100 · √PC: muestra lo mismo que el PC, pero en una escala de área más fácil de leer." },
-    { k: "ECA_pct_habitat", nombre: "ECA como % del área de hábitat",   u: "%",   dec: 1, g: "norm",    desc: "100 · ECA / área de hábitat: fracción del hábitat que funciona como un bloque conectado.",
-      interp: "Valores altos indican que casi todo el hábitat forma una red unida para la especie; las caídas bruscas, que el hábitat quedó partido en bloques grandes sin conexión entre ellos." }
+    { k: "PC",              nombre: "Probabilidad de conectividad (PC)", u: "",   dec: 5, g: "conect",  desc: "Probabilidad de que dos puntos tomados al azar en el paisaje caigan en hábitat conectado (0–1)." },
+    { k: "ECA_km2",         nombre: "Área conectada equivalente (ECA)", u: "km²", dec: 1, g: "conect",  desc: "Área de un único parche, totalmente conectado, que daría la misma PC que la red de parches." },
+    { k: "ECA_pct_paisaje", nombre: "ECA como % del área del paisaje",  u: "%",   dec: 2, g: "norm",    desc: "100 · ECA / área del paisaje (2.423 km²)." },
+    { k: "ECA_pct_habitat", nombre: "ECA como % del área de hábitat",   u: "%",   dec: 1, g: "norm",    desc: "100 · ECA / área de hábitat: fracción del hábitat que funciona como un bloque conectado." }
   ];
   // Variables calculadas por scripts/actualizar_datos.py: PC observado frente al PC máximo posible
   var M_PCMAX = [
-    { k: "hab_pct_paisaje", nombre: "Hábitat (% del paisaje)", u: "%", dec: 1, g: "habitat", desc: "100 · área de hábitat / área del paisaje (2.423 km²).",
-      interp: "Fija el techo del PC: con poco hábitat, el PC es bajo aunque el hábitat estuviera perfectamente conectado. El PC máximo posible es el cuadrado de esta proporción." },
+    { k: "hab_pct_paisaje", nombre: "Hábitat (% del paisaje)", u: "%", dec: 1, g: "habitat", desc: "100 · área de hábitat / área del paisaje (2.423 km²)." },
     { k: "PC_max",          nombre: "PC máximo posible",       u: "",  dec: 5, g: "habitat" },
-    { k: "PC_obs_max_pct",  nombre: "PC observado / máximo",   u: "%", dec: 1, g: "norm",    desc: "100 · PC observado / PC máximo posible. Equivale a (ECA % del hábitat)² / 100.",
-      interp: "Probabilidad de que dos puntos tomados al azar dentro del hábitat estén conectados para la especie: mide la conectividad sin el efecto de la cantidad de hábitat. Solo llegaría al 100 % si todo el hábitat fuera un parche continuo. No es el porcentaje del hábitat conectado (ese es el ECA % del hábitat)." }
+    { k: "PC_obs_max_pct",  nombre: "PC observado / máximo",   u: "%", dec: 1, g: "norm",    desc: "100 · PC observado / PC máximo posible. Equivale a (ECA % del hábitat)² / 100." }
   ];
   var BY = {};
   M.concat(M_PCMAX).forEach(function (m) { BY[m.k] = m; });
@@ -496,7 +488,6 @@ footer p { margin: 0; }
     h.innerHTML = colores.map(function (c) { return '<span class="sw" style="background:' + c + '"></span>'; }).join("") + esc(texto);
     gridA.appendChild(h);
   }
-  function interpHtml(t) { return '<p class="interp"><b>Cómo leerlo.</b> ' + esc(t) + "</p>"; }
   function tarjeta(m) {
     var card = document.createElement("article");
     card.className = "card";
@@ -505,7 +496,7 @@ footer p { margin: 0; }
       "<h3>" + esc(m.nombre) + (m.u ? ' <span class="u">(' + esc(m.u) + ")</span>" : "") + "</h3>" +
       '<p class="desc">' + esc(m.desc) + "</p>" +
       '<span class="orig mono">' + esc(m.k) + "</span>" +
-      "</div></div>" + interpHtml(m.interp) + '<div class="chart"></div>';
+      '</div></div><div class="chart"></div>';
     gridA.appendChild(card);
     crearChart(card.querySelector(".chart"), {
       nombre: m.nombre, u: m.u, dec: m.dec, series: [{ nombre: m.nombre, values: D[m.k], color: GRUPOS[m.g].color }]
@@ -523,7 +514,7 @@ footer p { margin: 0; }
       '<ul class="leyenda-mini">' + o.series.map(function (se) {
         return '<li><span class="ln" style="background:' + se.color + '"></span>' + esc(se.leyenda) + "</li>";
       }).join("") + '<li><span class="bd"></span>' + esc(o.banda) + "</li></ul>" +
-      "</div></div>" + interpHtml(o.interp) + '<div class="chart"></div>';
+      '</div></div><div class="chart"></div>';
     gridA.appendChild(card);
     crearChart(card.querySelector(".chart"), { nombre: o.titulo, u: o.u, dec: o.dec, banda: true, series: o.series, extra: o.extra });
   }
@@ -536,7 +527,6 @@ footer p { margin: 0; }
   tarjetaAncha({
     titulo: "PC máximo posible frente a PC observado", u: "", dec: 5, orig: "PC_max · PC",
     desc: "PC máximo posible = (área de hábitat / área del paisaje)²: el PC que habría si todo el hábitat fuera un único parche continuo.",
-    interp: "La banda entre las dos líneas es la conectividad que se pierde porque el hábitat está repartido en parches separados por la matriz. Lo que separa el máximo de 1 se debe a que la mayor parte del paisaje no es hábitat.",
     banda: "Conectividad perdida por la separación entre parches",
     series: [
       { nombre: "PC máximo posible", leyenda: "PC máximo posible (todo el hábitat como un solo parche)", values: D.PC_max, color: GRUPOS.habitat.color },
@@ -551,7 +541,6 @@ footer p { margin: 0; }
   tarjetaAncha({
     titulo: "Área conectada equivalente frente al área de hábitat", u: "km²", dec: 1, orig: "area_nodos_km2 · ECA_km2",
     desc: "La banda gris es el hábitat que no queda funcionalmente conectado para la especie.",
-    interp: "Cuando las dos líneas están cerca, casi todo el hábitat funciona como un bloque conectado; cuando se separan, una parte del hábitat queda aislada.",
     banda: "Hábitat no conectado",
     series: [
       { nombre: "Área de hábitat", leyenda: "Área de hábitat (todos los parches)", values: D.area_nodos_km2, color: GRUPOS.habitat.color },

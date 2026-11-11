@@ -8,7 +8,7 @@ Dashboard web con los valores anuales observados de la probabilidad de conectivi
 
 | Pestaña | Qué muestra |
 |---|---|
-| 01 · Conectividad anual | Series temporales de PC, ECA, PC máximo posible frente a PC observado, hábitat como % del paisaje, PC observado / máximo, ECA frente al área de hábitat, ECA como % del área del paisaje y ECA como % del área de hábitat, cada una con una nota de interpretación |
+| 01 · Conectividad anual | Series temporales de PC, ECA, PC máximo posible frente a PC observado, hábitat como % del paisaje, PC observado / máximo, ECA frente al área de hábitat, ECA como % del área del paisaje y ECA como % del área de hábitat |
 | 02 · Descriptivos | n, media, desviación estándar, CV, mínimo, cuartiles y máximo de PC, ECA y ECA normalizado para el periodo seleccionado |
 | 03 · Datos por año | Tabla anual con nodos, área de hábitat, PC, ECA y ECA normalizado; tabla del PC observado frente al PC máximo posible |
 
