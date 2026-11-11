@@ -28,6 +28,13 @@ Sigue el diseño del dashboard de fragmentación (`Salidas_fragmentacion/SALIDAS
 | `descriptivos` | Descarga de la pestaña 02. La tabla se recalcula en el navegador para el periodo elegido; con la serie completa coincide con esta hoja |
 | `medias_por_periodo`, `comparacion_nodos_1ha`, `control_nodos_S22` | No se usan |
 
+**Variables calculadas por `scripts/actualizar_datos.py`.** No están en el Excel.
+- `hab_pct_paisaje` = 100 · `area_nodos_km2` / LA.
+- `PC_max` = (`area_nodos_km2` / LA)²: el PC que habría si todo el hábitat fuera un único parche continuo.
+- `PC_obs_max_pct` = 100 · `PC` / `PC_max`, que equivale a (`ECA_pct_habitat`)² / 100. El script lo verifica.
+
+LA se obtiene del propio Excel: LA = 100 · `ECA_km2` / `ECA_pct_paisaje` = 2 422,97 km².
+
 ## 3. Qué contiene el dashboard
 
 **Encabezado.**
@@ -35,20 +42,25 @@ Sigue el diseño del dashboard de fragmentación (`Salidas_fragmentacion/SALIDAS
 - Debajo hay un selector de periodo (año inicial y final) que filtra las tres pestañas.
 
 **01 · Conectividad anual.**
-- Nota con la definición de PC y ECA.
+- Nota con las definiciones de PC (texto del usuario, literal), PC máximo posible y ECA.
 - Fichas con el valor del último año del periodo, más el del primer año como referencia.
-- Cinco gráficos:
-  - PC por año;
-  - ECA por año;
-  - ECA frente al área de hábitat: dos líneas con banda gris = hábitat no conectado;
-  - ECA como % del área del paisaje;
-  - ECA como % del área de hábitat.
+- Ocho gráficos en cuatro grupos:
+  - **Conectividad funcional:** PC por año; ECA por año.
+  - **PC observado frente al PC máximo posible:**
+    - PC máximo posible frente a PC observado: dos líneas; la banda gris es la conectividad perdida por la separación entre parches;
+    - Hábitat (% del paisaje);
+    - PC observado / máximo.
+  - **ECA frente al área de hábitat:** dos líneas; la banda gris es el hábitat no conectado.
+  - **ECA normalizado:** ECA como % del área del paisaje; ECA como % del área de hábitat.
+- Encima de cada gráfico hay una nota "Cómo leerlo" con una interpretación breve. Los textos están en las propiedades `interp` de `M` y `M_PCMAX`, y en las llamadas a `tarjetaAncha()`.
 
 **02 · Descriptivos.** Panel visualmente separado, con banda verde oscuro.
 - Tabla de n, media, DE, CV, mínimo (año), Q1, mediana, Q3 y máximo (año) para PC, ECA, ECA % del paisaje y ECA % del hábitat.
 - Los cuartiles se calculan con el método tipo 7, el de R por defecto.
 
-**03 · Datos por año.** Tabla con las 7 variables y enlaces de descarga.
+**03 · Datos por año.** Dos tablas con enlaces de descarga:
+- conectividad por año, con las 7 variables;
+- PC observado frente al PC máximo posible: año, hábitat (% del paisaje), PC máximo posible, PC observado y PC observado / máximo.
 
 **Interacción.**
 - Al pasar el cursor o tocar un gráfico se ve el valor de cada año.
@@ -60,6 +72,11 @@ Sigue el diseño del dashboard de fragmentación (`Salidas_fragmentacion/SALIDAS
    - gráficos de PC, ECA, ECA frente al área de hábitat, ECA % del paisaje y ECA % del hábitat;
    - tabla de descriptivos;
    - tabla por año solo con las 7 variables indicadas.
+   - Añadido el 11 de noviembre:
+     - definición del PC con el texto literal del usuario;
+     - gráficos de PC máximo posible frente a PC observado, Hábitat (% del paisaje) y PC observado / máximo;
+     - tabla del PC observado frente al máximo;
+     - una interpretación breve encima de cada gráfico.
 2. **Mismo diseño que el dashboard de fragmentación:** estética sobria, técnica y profesional, con la paleta de la leyenda de **MapBiomas**.
 3. **Valores observados:** sin modelos, tendencias ajustadas ni pruebas. La única síntesis estadística es la tabla de descriptivos, que el usuario pidió.
 4. **Optimizado para celular y computador.** Se verificó a 390 px (dentro de un iframe) y a 1366 px de ancho, sin desplazamiento horizontal de la página.
@@ -86,6 +103,7 @@ DASHBOARD/
 ├── data/
 │   ├── datos.js             # datos que lee index.html (generado, no editar a mano)
 │   ├── conectividad_por_anio.csv
+│   ├── pc_maximo_por_anio.csv
 │   ├── descriptivos.csv
 │   └── conectividad_por_anio_PC_ECA.xlsx   # copia del Excel original
 ├── scripts/
@@ -121,4 +139,6 @@ En `index.html` las variables se definen en el arreglo `M` (nombre en español, 
 
 ## 8. Historial
 
-- **11 de noviembre de 2026:** se creó el dashboard (pestañas 01 a 03) a partir de los resultados de `SALIDAS_CONECTIVIDAD2`.
+- **11 de noviembre de 2026:**
+  - Se creó el dashboard (pestañas 01 a 03) a partir de los resultados de `SALIDAS_CONECTIVIDAD2` y se publicó en GitHub Pages.
+  - Se añadieron la comparación del PC observado con el PC máximo posible (tres gráficos y una tabla), la definición del PC y las notas "Cómo leerlo".
